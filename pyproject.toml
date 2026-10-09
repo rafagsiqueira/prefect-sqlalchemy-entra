@@ -45,7 +45,8 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/PrefectHQ/prefect/tree/main/src/integrations/prefect-sqlalchemy"
+Homepage = "https://github.com/rafagsiqueira/prefect-sqlalchemy-entra"
+Upstream = "https://github.com/PrefectHQ/prefect/tree/main/src/integrations/prefect-sqlalchemy"
 
 [project.entry-points."prefect.collections"]
 prefect_sqlalchemy_entra = "prefect_sqlalchemy_entra"
