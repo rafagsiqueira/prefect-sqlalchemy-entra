@@ -3,10 +3,10 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "prefect-sqlalchemy"
-dependencies = ["sqlalchemy>=1.4.31,<3", "prefect>=3.6.17"]
+name = "prefect-sqlalchemy-entra"
+dependencies = ["sqlalchemy>=1.4.31,<3", "prefect>=3.6.17", "azure-identity>=1.15.0"]
 dynamic = ["version"]
-description = "Prefect integrations for working with databases"
+description = "Prefect integrations for working with databases, with Microsoft Entra ID token authentication"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache License 2.0" }
@@ -37,7 +37,7 @@ dev = [
   "mypy",
   "pillow",
   "pre-commit",
-  "psycopg2",
+  "psycopg2-binary",
   "pytest >= 8.3",
   "pytest-asyncio",
   "pytest-env",
@@ -52,10 +52,8 @@ prefect_sqlalchemy = "prefect_sqlalchemy"
 
 [tool.setuptools_scm]
 version_file = "prefect_sqlalchemy/_version.py"
-root = "../../.."
-tag_regex = "^prefect-sqlalchemy-(?P<version>\\d+\\.\\d+\\.\\d+(?:[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*)?)$"
-fallback_version = "0.0.0"
-git_describe_command = 'git describe --dirty --tags --long --match "prefect-sqlalchemy-*[0-9]*"'
+tag_regex = "^v?(?P<version>\\d+\\.\\d+\\.\\d+(?:[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*)?)$"
+fallback_version = "0.1.0"
 
 [tool.interrogate]
 ignore-init-module = true
@@ -70,9 +68,6 @@ omit = ["tests/*", "prefect_sqlalchemy/_version.py"]
 [tool.coverage.report]
 fail_under = 80
 show_missing = true
-
-[tool.uv.sources]
-prefect = { path = "../../../" }
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "session"

@@ -1,7 +1,7 @@
 """Tasks for querying a database with SQLAlchemy"""
 
 from contextlib import AsyncExitStack, ExitStack, asynccontextmanager, contextmanager
-from typing import Annotated, Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Annotated, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import AfterValidator, ConfigDict, Field
 from sqlalchemy import __version__ as SQLALCHEMY_VERSION
@@ -18,6 +18,10 @@ from prefect_sqlalchemy.credentials import (
     AsyncDriver,
     ConnectionComponents,
 )
+from prefect_sqlalchemy.entra import EntraIdAuth, register_entra_token_provider
+
+if TYPE_CHECKING:
+    from azure.core.credentials import TokenCredential
 
 
 def check_make_url(url: str) -> str:
@@ -51,6 +55,8 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         connect_args: The options which will be passed directly to the
             DBAPI's connect() method as additional keyword arguments.
         fetch_size: The number of rows to fetch at a time.
+        entra_id_auth: Settings to authenticate with Microsoft Entra ID access
+            tokens (SQL Server / Azure SQL via the Microsoft ODBC driver only).
 
     Example:
         Load stored database credentials and use in context manager:
@@ -89,6 +95,27 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
             )
         print(results)
         ```
+
+        Connect to Azure SQL with a Microsoft Entra ID access token.
+        ```python
+        from azure.identity import DefaultAzureCredential
+        from prefect_sqlalchemy import (
+            ConnectionComponents, SqlAlchemyConnector, SyncDriver
+        )
+
+        connector = SqlAlchemyConnector(
+            connection_info=ConnectionComponents(
+                driver=SyncDriver.MSSQL_PYODBC,
+                host="myserver.database.windows.net",
+                port=1433,
+                database="mydb",
+                query={"driver": "ODBC Driver 18 for SQL Server"},
+            )
+        )
+        connector.set_token_credential(DefaultAzureCredential())
+        with connector:
+            print(connector.fetch_one("SELECT SUSER_SNAME()"))
+        ```
     """
 
     _block_type_name = "SQLAlchemy Connector"
@@ -114,8 +141,17 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
     fetch_size: int = Field(
         default=1, description="The number of rows to fetch at a time."
     )
+    entra_id_auth: Optional[EntraIdAuth] = Field(
+        default=None,
+        title="Entra ID Authentication",
+        description=(
+            "Settings to authenticate with Microsoft Entra ID access tokens "
+            "(SQL Server / Azure SQL via the Microsoft ODBC driver only)."
+        ),
+    )
 
     _engine: Optional[Engine] = None
+    _token_credential: Optional[Any] = None
     _exit_stack: Optional[ExitStack] = None
     _unique_results: Optional[Dict[str, CursorResult]] = None
 
@@ -147,6 +183,38 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
 
         if self._exit_stack is None:
             self._exit_stack = ExitStack()
+
+    def set_token_credential(self, credential: "TokenCredential") -> None:
+        """
+        Use an `azure.identity` TokenCredential to authenticate new connections
+        with Microsoft Entra ID access tokens.
+
+        Takes precedence over the credential built from `entra_id_auth`.
+        Must be called before the engine is created.
+
+        Args:
+            credential: The TokenCredential used to acquire access tokens.
+        """
+        if self._engine is not None:
+            raise RuntimeError(
+                "The engine has already been created; call `set_token_credential` "
+                "before `get_engine`, or call `close` first."
+            )
+        self._token_credential = credential
+
+    def _register_entra_token_provider(self, engine: Engine) -> None:
+        """
+        Inject Entra ID access tokens into new connections, if configured.
+        """
+        credential = self._token_credential
+        if credential is None and self.entra_id_auth is not None:
+            credential = self._token_credential = self.entra_id_auth.get_credential()
+        if credential is None:
+            return
+
+        scope = (self.entra_id_auth or EntraIdAuth()).scope
+        register_entra_token_provider(engine, credential, scope, logger=self.logger)
+        self.logger.info("Configured Entra ID token authentication.")
 
     def get_engine(self, **create_engine_kwargs: Any) -> Engine:
         """
@@ -191,6 +259,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
             **create_engine_kwargs,
         )
         engine = create_engine(**engine_kwargs)
+        self._register_entra_token_provider(engine)
         self.logger.info("Created a new engine.")
 
         if self._engine is None:
@@ -677,6 +746,8 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         connect_args: The options which will be passed directly to the
             DBAPI's connect() method as additional keyword arguments.
         fetch_size: The number of rows to fetch at a time.
+        entra_id_auth: Settings to authenticate with Microsoft Entra ID access
+            tokens (SQL Server / Azure SQL via the Microsoft ODBC driver only).
 
     Example:
         Load stored database credentials and use in async context manager:
@@ -748,8 +819,17 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
     fetch_size: int = Field(
         default=1, description="The number of rows to fetch at a time."
     )
+    entra_id_auth: Optional[EntraIdAuth] = Field(
+        default=None,
+        title="Entra ID Authentication",
+        description=(
+            "Settings to authenticate with Microsoft Entra ID access tokens "
+            "(SQL Server / Azure SQL via the Microsoft ODBC driver only)."
+        ),
+    )
 
     _engine: Optional[AsyncEngine] = None
+    _token_credential: Optional[Any] = None
     _exit_stack: Optional[AsyncExitStack] = None
     _unique_results: Optional[Dict[str, CursorResult]] = None
 
@@ -778,6 +858,38 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
 
         if self._exit_stack is None:
             self._exit_stack = AsyncExitStack()
+
+    def set_token_credential(self, credential: "TokenCredential") -> None:
+        """
+        Use an `azure.identity` TokenCredential to authenticate new connections
+        with Microsoft Entra ID access tokens.
+
+        Takes precedence over the credential built from `entra_id_auth`.
+        Must be called before the engine is created.
+
+        Args:
+            credential: The TokenCredential used to acquire access tokens.
+        """
+        if self._engine is not None:
+            raise RuntimeError(
+                "The engine has already been created; call `set_token_credential` "
+                "before `get_engine`, or call `close` first."
+            )
+        self._token_credential = credential
+
+    def _register_entra_token_provider(self, engine: Engine) -> None:
+        """
+        Inject Entra ID access tokens into new connections, if configured.
+        """
+        credential = self._token_credential
+        if credential is None and self.entra_id_auth is not None:
+            credential = self._token_credential = self.entra_id_auth.get_credential()
+        if credential is None:
+            return
+
+        scope = (self.entra_id_auth or EntraIdAuth()).scope
+        register_entra_token_provider(engine, credential, scope, logger=self.logger)
+        self.logger.info("Configured Entra ID token authentication.")
 
     def get_engine(self, **create_engine_kwargs: Any) -> AsyncEngine:
         """
@@ -822,6 +934,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
             **create_engine_kwargs,
         )
         engine = create_async_engine(**engine_kwargs)
+        self._register_entra_token_provider(engine.sync_engine)
         self.logger.info("Created a new engine.")
 
         if self._engine is None:

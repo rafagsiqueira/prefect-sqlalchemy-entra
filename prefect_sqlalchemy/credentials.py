@@ -20,6 +20,8 @@ class AsyncDriver(Enum):
         MYSQL_AIOMYSQL (Enum): [mysql+aiomysql](https://docs.sqlalchemy.org/en/14/dialects/mysql.html#module-sqlalchemy.dialects.mysql.aiomysql)
 
         ORACLE_ORACLEDB_ASYNC (Enum): [oracle+oracledb_async](https://docs.sqlalchemy.org/en/20/dialects/oracle.html#module-sqlalchemy.dialects.oracle.oracledb)
+
+        MSSQL_AIOODBC (Enum): [mssql+aioodbc](https://docs.sqlalchemy.org/en/20/dialects/mssql.html#module-sqlalchemy.dialects.mssql.aioodbc)
     """  # noqa
 
     POSTGRESQL_ASYNCPG = "postgresql+asyncpg"
@@ -30,6 +32,8 @@ class AsyncDriver(Enum):
     MYSQL_AIOMYSQL = "mysql+aiomysql"
 
     ORACLE_ORACLEDB_ASYNC = "oracle+oracledb_async"
+
+    MSSQL_AIOODBC = "mssql+aioodbc"
 
 
 class SyncDriver(Enum):
