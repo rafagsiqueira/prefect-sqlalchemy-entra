@@ -11,7 +11,7 @@ def find_module_blocks():
     module_blocks = [
         block
         for block in blocks.values()
-        if to_qualified_name(block).startswith("prefect_sqlalchemy")
+        if to_qualified_name(block).startswith("prefect_sqlalchemy_entra")
     ]
     return module_blocks
 

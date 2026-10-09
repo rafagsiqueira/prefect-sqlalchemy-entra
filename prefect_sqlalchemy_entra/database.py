@@ -14,11 +14,11 @@ from typing_extensions import Literal
 
 from prefect.blocks.abstract import CredentialsBlock, DatabaseBlock
 from prefect.utilities.hashing import hash_objects
-from prefect_sqlalchemy.credentials import (
+from prefect_sqlalchemy_entra.credentials import (
     AsyncDriver,
     ConnectionComponents,
 )
-from prefect_sqlalchemy.entra import EntraIdAuth, register_entra_token_provider
+from prefect_sqlalchemy_entra.entra import EntraIdAuth, register_entra_token_provider
 
 if TYPE_CHECKING:
     from azure.core.credentials import TokenCredential
@@ -61,7 +61,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
     Example:
         Load stored database credentials and use in context manager:
         ```python
-        from prefect_sqlalchemy import SqlAlchemyConnector
+        from prefect_sqlalchemy_entra import SqlAlchemyConnector
 
         database_block = SqlAlchemyConnector.load("BLOCK_NAME")
         with database_block:
@@ -70,7 +70,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
 
         Create table named customers and insert values; then fetch the first 10 rows.
         ```python
-        from prefect_sqlalchemy import (
+        from prefect_sqlalchemy_entra import (
             SqlAlchemyConnector, SyncDriver, ConnectionComponents
         )
 
@@ -99,7 +99,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         Connect to Azure SQL with a Microsoft Entra ID access token.
         ```python
         from azure.identity import DefaultAzureCredential
-        from prefect_sqlalchemy import (
+        from prefect_sqlalchemy_entra import (
             ConnectionComponents, SqlAlchemyConnector, SyncDriver
         )
 
@@ -118,7 +118,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         ```
     """
 
-    _block_type_name = "SQLAlchemy Connector"
+    _block_type_name = "SQLAlchemy Entra Connector"
     _logo_url = "https://raw.githubusercontent.com/PrefectHQ/prefect/420d0d6a78bb6df1fc18bcf188fdad43c1d22ea9/assets/block-logos/sqlalchemy.png"  # type: ignore
     _documentation_url = "https://docs.prefect.io/integrations/prefect-sqlalchemy"  # type: ignore
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -230,7 +230,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
             Create a synchronous engine to PostgreSQL using URL params.
             ```python
             from prefect import flow
-            from prefect_sqlalchemy import (
+            from prefect_sqlalchemy_entra import (
                 SqlAlchemyConnector, ConnectionComponents, SyncDriver
             )
 
@@ -283,7 +283,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         Examples:
             Create a synchronous connection as a context-managed transaction.
             ```python
-            from prefect_sqlalchemy import SqlAlchemyConnector
+            from prefect_sqlalchemy_entra import SqlAlchemyConnector
 
             sqlalchemy_connector = SqlAlchemyConnector.load("BLOCK_NAME")
             with sqlalchemy_connector.get_connection(begin=False) as connection:
@@ -317,7 +317,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         Examples:
             Create an engine.
             ```python
-            from prefect_sqlalchemy import SqlAlchemyConnector
+            from prefect_sqlalchemy_entra import SqlAlchemyConnector
 
             sqlalchemy_connector = SqlAlchemyConnector.load("BLOCK_NAME")
             engine = sqlalchemy_connector.get_client(client_type="engine")
@@ -325,7 +325,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
 
             Create a context managed connection.
             ```python
-            from prefect_sqlalchemy import SqlAlchemyConnector
+            from prefect_sqlalchemy_entra import SqlAlchemyConnector
 
             sqlalchemy_connector = SqlAlchemyConnector.load("BLOCK_NAME")
             with sqlalchemy_connector.get_client(client_type="connection") as conn:
@@ -412,7 +412,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         Examples:
             Resets connections so `fetch_*` methods return new results.
             ```python
-            from prefect_sqlalchemy import SqlAlchemyConnector
+            from prefect_sqlalchemy_entra import SqlAlchemyConnector
 
             with SqlAlchemyConnector.load("MY_BLOCK") as database:
                 results = database.fetch_one("SELECT * FROM customers")
@@ -454,7 +454,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         Examples:
             Create a table, insert three rows into it, and fetch a row repeatedly.
             ```python
-            from prefect_sqlalchemy import SqlAlchemyConnector
+            from prefect_sqlalchemy_entra import SqlAlchemyConnector
 
             with SqlAlchemyConnector.load("MY_BLOCK") as database:
                 database.execute(
@@ -510,7 +510,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         Examples:
             Create a table, insert three rows into it, and fetch two rows repeatedly.
             ```python
-            from prefect_sqlalchemy import SqlAlchemyConnector
+            from prefect_sqlalchemy_entra import SqlAlchemyConnector
 
             with SqlAlchemyConnector.load("MY_BLOCK") as database:
                 database.execute(
@@ -564,7 +564,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         Examples:
             Create a table, insert three rows into it, and fetch all where name is 'Me'.
             ```python
-            from prefect_sqlalchemy import SqlAlchemyConnector
+            from prefect_sqlalchemy_entra import SqlAlchemyConnector
 
             with SqlAlchemyConnector.load("MY_BLOCK") as database:
                 database.execute(
@@ -613,7 +613,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         Examples:
             Create a table and insert one row into it.
             ```python
-            from prefect_sqlalchemy import SqlAlchemyConnector
+            from prefect_sqlalchemy_entra import SqlAlchemyConnector
 
             with SqlAlchemyConnector.load("MY_BLOCK") as database:
                 database.execute(
@@ -657,7 +657,7 @@ class SqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         Examples:
             Create a table and insert two rows into it.
             ```python
-            from prefect_sqlalchemy import SqlAlchemyConnector
+            from prefect_sqlalchemy_entra import SqlAlchemyConnector
 
             with SqlAlchemyConnector.load("MY_BLOCK") as database:
                 database.execute(
@@ -753,7 +753,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         Load stored database credentials and use in async context manager:
         ```python
         import asyncio
-        from prefect_sqlalchemy import AsyncSqlAlchemyConnector
+        from prefect_sqlalchemy_entra import AsyncSqlAlchemyConnector
 
         async def main():
             database_block = AsyncSqlAlchemyConnector.load("BLOCK_NAME")
@@ -766,7 +766,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         Create table named customers and insert values; then fetch the first 10 rows.
         ```python
         import asyncio
-        from prefect_sqlalchemy import (
+        from prefect_sqlalchemy_entra import (
             AsyncSqlAlchemyConnector, AsyncDriver, ConnectionComponents
         )
 
@@ -796,7 +796,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         ```
     """
 
-    _block_type_name = "Async SQLAlchemy Connector"
+    _block_type_name = "Async SQLAlchemy Entra Connector"
     _logo_url = "https://raw.githubusercontent.com/PrefectHQ/prefect/420d0d6a78bb6df1fc18bcf188fdad43c1d22ea9/assets/block-logos/sqlalchemy.png"  # type: ignore
     _documentation_url = "https://docs.prefect.io/integrations/prefect-sqlalchemy"  # type: ignore
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -905,7 +905,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
             Create an asynchronous engine to PostgreSQL using URL params.
             ```python
             from prefect import flow
-            from prefect_sqlalchemy import (
+            from prefect_sqlalchemy_entra import (
                 AsyncSqlAlchemyConnector, ConnectionComponents, AsyncDriver
             )
 
@@ -961,7 +961,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
             Create an asynchronous connection as a context-managed transaction.
             ```python
             import asyncio
-            from prefect_sqlalchemy import AsyncSqlAlchemyConnector
+            from prefect_sqlalchemy_entra import AsyncSqlAlchemyConnector
 
             async def main():
                 sqlalchemy_connector = await AsyncSqlAlchemyConnector.load("BLOCK_NAME")
@@ -998,7 +998,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
         Examples:
             Create an engine.
             ```python
-            from prefect_sqlalchemy import AsyncSqlAlchemyConnector
+            from prefect_sqlalchemy_entra import AsyncSqlAlchemyConnector
 
             sqlalchemy_connector = AsyncSqlAlchemyConnector.load("BLOCK_NAME")
             engine = sqlalchemy_connector.get_client(client_type="engine")
@@ -1006,7 +1006,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
 
             Create a context managed connection.
             ```python
-            from prefect_sqlalchemy import AsyncSqlAlchemyConnector
+            from prefect_sqlalchemy_entra import AsyncSqlAlchemyConnector
 
             sqlalchemy_connector = AsyncSqlAlchemyConnector.load("BLOCK_NAME")
             async with sqlalchemy_connector.get_client(client_type="connection") as conn:
@@ -1096,7 +1096,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
             Resets connections so `fetch_*` methods return new results.
             ```python
             import asyncio
-            from prefect_sqlalchemy import AsyncSqlAlchemyConnector
+            from prefect_sqlalchemy_entra import AsyncSqlAlchemyConnector
 
             async def example_run():
                 async with AsyncSqlAlchemyConnector.load("MY_BLOCK") as database:
@@ -1142,7 +1142,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
             Create a table, insert three rows into it, and fetch a row repeatedly.
             ```python
             import asyncio
-            from prefect_sqlalchemy import AsyncSqlAlchemyConnector
+            from prefect_sqlalchemy_entra import AsyncSqlAlchemyConnector
 
             async def example_run():
                 async with AsyncSqlAlchemyConnector.load("MY_BLOCK") as database:
@@ -1202,7 +1202,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
             Create a table, insert three rows into it, and fetch two rows repeatedly.
             ```python
             import asyncio
-            from prefect_sqlalchemy import AsyncSqlAlchemyConnector
+            from prefect_sqlalchemy_entra import AsyncSqlAlchemyConnector
 
             async def example_run():
                 async with AsyncSqlAlchemyConnector.load("MY_BLOCK") as database:
@@ -1260,7 +1260,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
             Create a table, insert three rows into it, and fetch all where name is 'Me'.
             ```python
             import asyncio
-            from prefect_sqlalchemy import AsyncSqlAlchemyConnector
+            from prefect_sqlalchemy_entra import AsyncSqlAlchemyConnector
 
             async def example_run():
                 async with AsyncSqlAlchemyConnector.load("MY_BLOCK") as database:
@@ -1313,7 +1313,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
             Create a table and insert one row into it.
             ```python
             import asyncio
-            from prefect_sqlalchemy import AsyncSqlAlchemyConnector
+            from prefect_sqlalchemy_entra import AsyncSqlAlchemyConnector
 
             async def example_run():
                 async with AsyncSqlAlchemyConnector.load("MY_BLOCK") as database:
@@ -1361,7 +1361,7 @@ class AsyncSqlAlchemyConnector(CredentialsBlock, DatabaseBlock):
             Create a table and insert two rows into it.
             ```python
             import asyncio
-            from prefect_sqlalchemy import AsyncSqlAlchemyConnector
+            from prefect_sqlalchemy_entra import AsyncSqlAlchemyConnector
 
             async def example_run():
                 async with AsyncSqlAlchemyConnector.load("MY_BLOCK") as database:

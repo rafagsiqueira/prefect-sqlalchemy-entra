@@ -1,4 +1,4 @@
-from prefect_sqlalchemy.credentials import ConnectionComponents, SyncDriver
+from prefect_sqlalchemy_entra.credentials import ConnectionComponents, SyncDriver
 from pydantic import SecretStr
 from sqlalchemy.engine.url import make_url
 

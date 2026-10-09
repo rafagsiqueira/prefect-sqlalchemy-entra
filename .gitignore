@@ -6,4 +6,4 @@ dist/
 .venv/
 .pytest_cache/
 .coverage
-prefect_sqlalchemy/_version.py
+prefect_sqlalchemy_entra/_version.py

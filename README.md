@@ -4,9 +4,10 @@ A fork of [prefect-sqlalchemy](https://github.com/PrefectHQ/prefect/tree/main/sr
 that adds **Microsoft Entra ID (Azure AD) token authentication** for SQL Server and
 Azure SQL, using any `TokenCredential` from [`azure.identity`](https://learn.microsoft.com/python/api/overview/azure/identity-readme).
 
-It is a drop-in replacement: it installs the same `prefect_sqlalchemy` module and the
-same `SqlAlchemyConnector` / `AsyncSqlAlchemyConnector` blocks, so it must not be
-installed alongside `prefect-sqlalchemy`. See the
+It installs the `prefect_sqlalchemy_entra` module with the block types
+**SQLAlchemy Entra Connector** and **Async SQLAlchemy Entra Connector**, so it can be
+installed alongside `prefect-sqlalchemy`. Apart from the import path and block type
+names, the API matches upstream; see the
 [upstream docs](https://docs.prefect.io/integrations/prefect-sqlalchemy) for
 everything else.
 
@@ -29,7 +30,9 @@ Do not set a username or password in the connection info.
 
 ```python
 from azure.identity import DefaultAzureCredential
-from prefect_sqlalchemy import ConnectionComponents, SqlAlchemyConnector, SyncDriver
+from prefect_sqlalchemy_entra import (
+    ConnectionComponents, SqlAlchemyConnector, SyncDriver
+)
 
 connector = SqlAlchemyConnector(
     connection_info=ConnectionComponents(
@@ -55,7 +58,7 @@ The `entra_id_auth` field is saved with the block, so it can also be set from th
 Prefect UI:
 
 ```python
-from prefect_sqlalchemy import (
+from prefect_sqlalchemy_entra import (
     ConnectionComponents, EntraIdAuth, SqlAlchemyConnector, SyncDriver
 )
 

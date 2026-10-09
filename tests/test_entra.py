@@ -8,16 +8,16 @@ from azure.identity import (
     DefaultAzureCredential,
     ManagedIdentityCredential,
 )
-from prefect_sqlalchemy.credentials import (
+from prefect_sqlalchemy_entra.credentials import (
     AsyncDriver,
     ConnectionComponents,
     SyncDriver,
 )
-from prefect_sqlalchemy.database import (
+from prefect_sqlalchemy_entra.database import (
     AsyncSqlAlchemyConnector,
     SqlAlchemyConnector,
 )
-from prefect_sqlalchemy.entra import (
+from prefect_sqlalchemy_entra.entra import (
     DEFAULT_ENTRA_SCOPE,
     SQL_COPT_SS_ACCESS_TOKEN,
     EntraCredentialType,

@@ -48,22 +48,22 @@ dev = [
 Homepage = "https://github.com/PrefectHQ/prefect/tree/main/src/integrations/prefect-sqlalchemy"
 
 [project.entry-points."prefect.collections"]
-prefect_sqlalchemy = "prefect_sqlalchemy"
+prefect_sqlalchemy_entra = "prefect_sqlalchemy_entra"
 
 [tool.setuptools_scm]
-version_file = "prefect_sqlalchemy/_version.py"
+version_file = "prefect_sqlalchemy_entra/_version.py"
 tag_regex = "^v?(?P<version>\\d+\\.\\d+\\.\\d+(?:[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*)?)$"
 fallback_version = "0.1.0"
 
 [tool.interrogate]
 ignore-init-module = true
 ignore_init_method = true
-exclude = ["prefect_sqlalchemy/_version.py", "tests"]
+exclude = ["prefect_sqlalchemy_entra/_version.py", "tests"]
 fail-under = 95
 omit-covered-files = true
 
 [tool.coverage.run]
-omit = ["tests/*", "prefect_sqlalchemy/_version.py"]
+omit = ["tests/*", "prefect_sqlalchemy_entra/_version.py"]
 
 [tool.coverage.report]
 fail_under = 80

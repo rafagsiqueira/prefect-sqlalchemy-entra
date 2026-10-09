@@ -7,12 +7,12 @@ work correctly with their respective driver types.
 from typing import Coroutine
 
 import pytest
-from prefect_sqlalchemy.credentials import (
+from prefect_sqlalchemy_entra.credentials import (
     AsyncDriver,
     ConnectionComponents,
     SyncDriver,
 )
-from prefect_sqlalchemy.database import AsyncSqlAlchemyConnector, SqlAlchemyConnector
+from prefect_sqlalchemy_entra.database import AsyncSqlAlchemyConnector, SqlAlchemyConnector
 from sqlalchemy.engine.cursor import CursorResult
 
 from prefect import flow

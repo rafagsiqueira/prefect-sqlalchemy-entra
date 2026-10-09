@@ -11,7 +11,7 @@ api-ref:
         --isolated \
         'mdxify>=0.2.45' \
         --all \
-        --root-module prefect_sqlalchemy \
+        --root-module prefect_sqlalchemy_entra \
         --output-dir docs/integrations/prefect-sqlalchemy/api-ref \
         --anchor-name "prefect-sqlalchemy-sdk-reference" \
         --repo-url https://github.com/PrefectHQ/prefect \

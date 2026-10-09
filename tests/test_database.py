@@ -2,12 +2,12 @@ from contextlib import ExitStack, asynccontextmanager, contextmanager
 from unittest.mock import MagicMock
 
 import pytest
-from prefect_sqlalchemy.credentials import (
+from prefect_sqlalchemy_entra.credentials import (
     AsyncDriver,
     ConnectionComponents,
     SyncDriver,
 )
-from prefect_sqlalchemy.database import (
+from prefect_sqlalchemy_entra.database import (
     AsyncSqlAlchemyConnector,
     SqlAlchemyConnector,
 )
